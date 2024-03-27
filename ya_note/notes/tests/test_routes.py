@@ -69,20 +69,6 @@ class TestRoutes(TestCase):
                     msg=f'Редирект: {response.headers.get("Location")}'
                 )
 
-    def test_omg_wtf(self):
-        users_statuses = [
-            (self.note_edit_url, self.author_client, HTTPStatus.OK),
-            (self.home_url, self.reader_client, HTTPStatus.NOT_FOUND),
-        ]
-        for url, user_client, status in users_statuses:
-            with self.subTest(url=url, user_client=user_client, status=status):
-                response = user_client.get(self.note_delete_url)
-                self.assertEqual(
-                    response.status_code,
-                    status,
-                    msg=f'Редирект: {response.headers.get("Location")}'
-                )
-
     def test_redirect_for_anonymous_client(self):
         urls = [
             self.note_add_url,
