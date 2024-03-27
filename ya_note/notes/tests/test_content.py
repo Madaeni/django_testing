@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.urls import reverse
 
 from notes.models import Note
@@ -29,23 +29,21 @@ class TestNotesPage(TestCase):
             author=cls.another_author
         )
         cls.detail_url = reverse('notes:edit', args=(cls.note.slug,))
+        cls.author_client = Client()
+        cls.author_client.force_login(cls.author)
+        cls.list_url = reverse('notes:list')
 
     def test_authorized_client_has_form(self):
-        self.client.force_login(self.author)
-        response = self.client.get(self.detail_url)
+        response = self.author_client.get(self.detail_url)
         self.assertIn('form', response.context)
         self.assertIsInstance(response.context['form'], NoteForm)
 
     def test_note_in_notes(self):
-        self.client.force_login(self.author)
-        url = reverse('notes:list')
-        response = self.client.get(url)
-        object_list = response.context['object_list']
-        self.assertIn(self.note, object_list)
+        response = self.author_client.get(self.list_url)
+        self.assertIn(self.note, response.context['object_list'])
 
-    def test_correct_note_in_notes(self):
-        self.client.force_login(self.author)
-        url = reverse('notes:list')
-        response = self.client.get(url)
+    def test_correct_author_note_in_notes(self):
+        response = self.author_client.get(self.list_url)
         object_list = response.context['object_list']
-        self.assertNotIn(self.another_author, object_list)
+        note_authors = [note.author for note in object_list]
+        self.assertNotIn(self.another_author, note_authors)

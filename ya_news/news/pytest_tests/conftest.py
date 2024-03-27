@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
-import pytest
 
+import pytest
+from django.urls import reverse
 from django.test.client import Client
 
 from news.models import Comment, News
@@ -58,11 +59,6 @@ def several_news():
 
 
 @pytest.fixture
-def news_pk(news):
-    return (news.pk,)
-
-
-@pytest.fixture
 def comment(news, author):
     comment = Comment.objects.create(
         news=news,
@@ -87,12 +83,47 @@ def comments(news, author):
 
 
 @pytest.fixture
-def comment_pk(comment):
-    return (comment.pk,)
-
-
-@pytest.fixture
 def form_data():
     return {
         'text': 'Новый текст',
     }
+
+
+@pytest.fixture
+def count_comments_at_start():
+    return Comment.objects.count()
+
+
+@pytest.fixture
+def home_url():
+    return reverse('news:home')
+
+
+@pytest.fixture
+def login_url():
+    return reverse('users:login')
+
+
+@pytest.fixture
+def logout_url():
+    return reverse('users:logout')
+
+
+@pytest.fixture
+def signup_url():
+    return reverse('users:signup')
+
+
+@pytest.fixture
+def detail_url(news):
+    return reverse('news:detail', args=(news.pk,))
+
+
+@pytest.fixture
+def edit_url(comment):
+    return reverse('news:edit', args=(comment.pk,))
+
+
+@pytest.fixture
+def delete_url(comment):
+    return reverse('news:delete', args=(comment.pk,))
