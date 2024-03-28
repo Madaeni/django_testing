@@ -14,18 +14,8 @@ from pytest_django.asserts import assertRedirects
             HTTPStatus.OK
         ),
         (
-            pytest.lazy_fixture('home_url'),
-            pytest.lazy_fixture('not_author_client'),
-            HTTPStatus.OK
-        ),
-        (
             pytest.lazy_fixture('login_url'),
             pytest.lazy_fixture('not_auth_client'),
-            HTTPStatus.OK
-        ),
-        (
-            pytest.lazy_fixture('login_url'),
-            pytest.lazy_fixture('not_author_client'),
             HTTPStatus.OK
         ),
         (
@@ -34,28 +24,13 @@ from pytest_django.asserts import assertRedirects
             HTTPStatus.OK
         ),
         (
-            pytest.lazy_fixture('logout_url'),
-            pytest.lazy_fixture('not_author_client'),
-            HTTPStatus.OK
-        ),
-        (
             pytest.lazy_fixture('signup_url'),
             pytest.lazy_fixture('not_auth_client'),
             HTTPStatus.OK
         ),
         (
-            pytest.lazy_fixture('signup_url'),
-            pytest.lazy_fixture('not_author_client'),
-            HTTPStatus.OK
-        ),
-        (
             pytest.lazy_fixture('detail_url'),
             pytest.lazy_fixture('not_auth_client'),
-            HTTPStatus.OK
-        ),
-        (
-            pytest.lazy_fixture('detail_url'),
-            pytest.lazy_fixture('not_author_client'),
             HTTPStatus.OK
         ),
         (

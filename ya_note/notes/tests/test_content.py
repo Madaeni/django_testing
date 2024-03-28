@@ -45,5 +45,6 @@ class TestNotesPage(TestCase):
     def test_correct_author_note_in_notes(self):
         response = self.author_client.get(self.list_url)
         object_list = response.context['object_list']
-        note_authors = [note.author for note in object_list]
-        self.assertNotIn(self.another_author, note_authors)
+        self.assertFalse(
+            object_list.filter(author=self.another_author).exists()
+        )

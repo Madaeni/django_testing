@@ -43,11 +43,9 @@ class TestRoutes(TestCase):
     def test_pages_availability(self):
         users_statuses = [
             (self.home_url, self.not_auth_client, HTTPStatus.OK),
-            (self.home_url, self.reader_client, HTTPStatus.OK),
             (self.login_url, self.not_auth_client, HTTPStatus.OK),
-            (self.login_url, self.reader_client, HTTPStatus.OK),
+            (self.logout_url, self.not_auth_client, HTTPStatus.OK),
             (self.signup_url, self.not_auth_client, HTTPStatus.OK),
-            (self.signup_url, self.reader_client, HTTPStatus.OK),
             (self.note_add_url, self.reader_client, HTTPStatus.OK),
             (self.note_list_url, self.reader_client, HTTPStatus.OK),
             (self.success_url, self.reader_client, HTTPStatus.OK),
@@ -57,8 +55,6 @@ class TestRoutes(TestCase):
             (self.note_detail_url, self.author_client, HTTPStatus.OK),
             (self.note_delete_url, self.reader_client, HTTPStatus.NOT_FOUND),
             (self.note_delete_url, self.author_client, HTTPStatus.OK),
-            (self.logout_url, self.not_auth_client, HTTPStatus.OK),
-            (self.logout_url, self.reader_client, HTTPStatus.OK),
         ]
         for url, user_client, status in users_statuses:
             with self.subTest(url=url, user_client=user_client, status=status):

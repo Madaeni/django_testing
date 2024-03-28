@@ -24,11 +24,11 @@ def test_user_can_create_comment(
         author_client.post(detail_url, data=form_data),
         f'{detail_url}#comments'
     )
-    assert Comment.objects.count() - count_comments_at_start == 1
-    new_comment = (set(Comment.objects.all()) - comments).pop()
-    assert new_comment.text == form_data['text']
-    assert new_comment.news == news
-    assert new_comment.author == author
+    new_comment = set(Comment.objects.all())
+    assert len(new_comment) - count_comments_at_start == 1
+    assert (new_comment - comments).pop().text == form_data['text']
+    assert (new_comment - comments).pop().news == news
+    assert (new_comment - comments).pop().author == author
 
 
 def test_comment_not_contain_bad_words(
@@ -47,35 +47,37 @@ def test_author_can_edit_note(
         author_client.post(edit_url, form_data),
         f'{detail_url}#comments'
     )
-    comment.refresh_from_db()
-    assert comment.text == form_data['text']
-    assert comment.news == news
-    assert comment.author == author
+    edited_comment = Comment.objects.get(pk=comment.pk)
+    assert edited_comment.text == form_data['text']
+    assert edited_comment.news == news
+    assert edited_comment.author == author
 
 
 def test_not_author_cant_edit_note(
     not_author_client, edit_url, comment, form_data, news, author
 ):
+    comment_text = comment.text
     response = not_author_client.post(edit_url, form_data)
+    edited_comment = Comment.objects.get(pk=comment.pk)
     assert response.status_code == HTTPStatus.NOT_FOUND
-    assert comment.text != form_data['text']
-    assert comment.news == news
-    assert comment.author == author
+    assert edited_comment.text == comment_text
+    assert edited_comment.news == news
+    assert edited_comment.author == author
 
 
 def test_author_can_delete_note(
-    author_client, detail_url, delete_url, count_comments_at_start
+    author_client, detail_url, delete_url, comment
 ):
     assertRedirects(
         author_client.post(delete_url),
         f'{detail_url}#comments'
     )
-    assert count_comments_at_start - Comment.objects.count() == 1
+    assert not Comment.objects.filter(id=comment.pk).exists()
 
 
 def test_other_user_cant_delete_note(
-    not_author_client, delete_url, count_comments_at_start
+    not_author_client, delete_url, comment
 ):
     response = not_author_client.post(delete_url)
     assert response.status_code == HTTPStatus.NOT_FOUND
-    assert count_comments_at_start - Comment.objects.count() == 0
+    assert Comment.objects.filter(id=comment.pk).exists()
