@@ -63,11 +63,7 @@ class TestRoutes(TestCase):
         for url, user_client, status in users_statuses:
             with self.subTest(url=url, user_client=user_client, status=status):
                 response = user_client.get(url)
-                self.assertEqual(
-                    response.status_code,
-                    status,
-                    msg=f'Редирект: {response.headers.get("Location")}'
-                )
+                self.assertEqual(response.status_code, status)
 
     def test_redirect_for_anonymous_client(self):
         urls = [
