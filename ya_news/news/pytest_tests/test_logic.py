@@ -24,11 +24,12 @@ def test_user_can_create_comment(
         author_client.post(detail_url, data=form_data),
         f'{detail_url}#comments'
     )
-    new_comment = set(Comment.objects.all())
-    assert len(new_comment) - count_comments_at_start == 1
-    assert (new_comment - comments).pop().text == form_data['text']
-    assert (new_comment - comments).pop().news == news
-    assert (new_comment - comments).pop().author == author
+    new_comments = set(Comment.objects.all())
+    assert len(new_comments) - count_comments_at_start == 1
+    new_comment = (new_comments - comments).pop()
+    assert new_comment.text == form_data['text']
+    assert new_comment.news == news
+    assert new_comment.author == author
 
 
 def test_comment_not_contain_bad_words(
@@ -41,7 +42,7 @@ def test_comment_not_contain_bad_words(
 
 
 def test_author_can_edit_note(
-    author_client, detail_url, edit_url, comment, form_data, news, author
+    author_client, detail_url, edit_url, comment, form_data
 ):
     assertRedirects(
         author_client.post(edit_url, form_data),
@@ -49,20 +50,20 @@ def test_author_can_edit_note(
     )
     edited_comment = Comment.objects.get(pk=comment.pk)
     assert edited_comment.text == form_data['text']
-    assert edited_comment.news == news
-    assert edited_comment.author == author
+    assert edited_comment.news == comment.news
+    assert edited_comment.author == comment.author
 
 
 def test_not_author_cant_edit_note(
-    not_author_client, edit_url, comment, form_data, news, author
+    not_author_client, edit_url, comment, form_data
 ):
-    comment_text = comment.text
+    before_editing = comment
     response = not_author_client.post(edit_url, form_data)
     edited_comment = Comment.objects.get(pk=comment.pk)
     assert response.status_code == HTTPStatus.NOT_FOUND
-    assert edited_comment.text == comment_text
-    assert edited_comment.news == news
-    assert edited_comment.author == author
+    assert edited_comment.text == before_editing.text
+    assert edited_comment.news == before_editing.news
+    assert edited_comment.author == before_editing.author
 
 
 def test_author_can_delete_note(

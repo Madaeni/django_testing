@@ -31,6 +31,8 @@ class TestNotesPage(TestCase):
         cls.detail_url = reverse('notes:edit', args=(cls.note.slug,))
         cls.author_client = Client()
         cls.author_client.force_login(cls.author)
+        cls.another_author_client = Client()
+        cls.another_author_client.force_login(cls.another_author)
         cls.list_url = reverse('notes:list')
 
     def test_authorized_client_has_form(self):
@@ -43,8 +45,5 @@ class TestNotesPage(TestCase):
         self.assertIn(self.note, response.context['object_list'])
 
     def test_correct_author_note_in_notes(self):
-        response = self.author_client.get(self.list_url)
-        object_list = response.context['object_list']
-        self.assertFalse(
-            object_list.filter(author=self.another_author).exists()
-        )
+        response = self.another_author_client.get(self.list_url)
+        self.assertNotIn(self.note, response.context['object_list'])

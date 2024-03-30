@@ -70,9 +70,10 @@ class TestNoteCreation(TestCase):
 
     def test_user_can_create_note(self):
         response = self.author_client.post(self.add_url, data=self.form_data)
+        new_notes = Note.objects.all()
         self.assertRedirects(response, self.success_url)
-        self.assertEqual(Note.objects.count() - self.notes_count_at_start, 1)
-        note = Note.objects.get(slug=slugify(self.form_data['title']))
+        self.assertEqual(new_notes.count() - self.notes_count_at_start, 1)
+        note = new_notes.latest('pk')
         self.assertEqual(note.title, self.NEW_NOTE_TITLE)
         self.assertEqual(note.text, self.NEW_NOTE_TEXT)
         self.assertEqual(note.author, self.author)
@@ -98,15 +99,15 @@ class TestNoteCreation(TestCase):
     def test_author_can_edit_note(self):
         response = self.author_client.post(self.edit_url, data=self.form_data)
         self.assertRedirects(response, self.success_url)
-        note = Note.objects.get(slug=slugify(self.form_data['title']))
+        note = Note.objects.get(pk=self.note.pk)
         self.assertEqual(note.title, self.NEW_NOTE_TITLE)
         self.assertEqual(note.text, self.NEW_NOTE_TEXT)
-        self.assertEqual(note.author, self.author)
+        self.assertEqual(note.author, self.note.author)
 
     def test_user_cant_edit_note_of_another_user(self):
         response = self.auth_client.post(self.edit_url, data=self.form_data)
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
-        note = Note.objects.get(slug=self.note.slug)
+        note = Note.objects.get(pk=self.note.pk)
         self.assertEqual(note.title, self.NOTE_TITLE)
         self.assertEqual(note.text, self.NOTE_TEXT)
-        self.assertEqual(note.author, self.author)
+        self.assertEqual(note.author, self.note.author)
