@@ -57,13 +57,12 @@ def test_author_can_edit_note(
 def test_not_author_cant_edit_note(
     not_author_client, edit_url, comment, form_data
 ):
-    before_editing = comment
     response = not_author_client.post(edit_url, form_data)
     edited_comment = Comment.objects.get(pk=comment.pk)
     assert response.status_code == HTTPStatus.NOT_FOUND
-    assert edited_comment.text == before_editing.text
-    assert edited_comment.news == before_editing.news
-    assert edited_comment.author == before_editing.author
+    assert edited_comment.text == comment.text
+    assert edited_comment.news == comment.news
+    assert edited_comment.author == comment.author
 
 
 def test_author_can_delete_note(
