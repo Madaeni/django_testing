@@ -60,20 +60,21 @@ class TestNoteCreation(TestCase):
         response = self.auth_client.post(
             self.add_url, data=self.form_data
         )
-        new_note = set(Note.objects.all())
+        new_notes = set(Note.objects.all())
         self.assertRedirects(response, self.success_url)
-        self.assertEqual(len(new_note) - self.notes_count_at_start, 1)
+        self.assertEqual(len(new_notes - notes), 1)
         self.assertEqual(
-            (new_note - notes).pop().slug,
+            (new_notes - notes).pop().slug,
             slugify(self.form_data['title'])
         )
 
     def test_user_can_create_note(self):
+        notes = set(Note.objects.all())
         response = self.author_client.post(self.add_url, data=self.form_data)
-        new_notes = Note.objects.all()
+        new_notes = set(Note.objects.all())
         self.assertRedirects(response, self.success_url)
-        self.assertEqual(new_notes.count() - self.notes_count_at_start, 1)
-        note = new_notes.latest('pk')
+        self.assertEqual(len(new_notes - notes), 1)
+        note = (new_notes - notes).pop()
         self.assertEqual(note.title, self.NEW_NOTE_TITLE)
         self.assertEqual(note.text, self.NEW_NOTE_TEXT)
         self.assertEqual(note.author, self.author)
@@ -108,6 +109,6 @@ class TestNoteCreation(TestCase):
         response = self.auth_client.post(self.edit_url, data=self.form_data)
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         note = Note.objects.get(pk=self.note.pk)
-        self.assertEqual(note.title, self.NOTE_TITLE)
-        self.assertEqual(note.text, self.NOTE_TEXT)
+        self.assertEqual(note.title, self.note.title)
+        self.assertEqual(note.text, self.note.text)
         self.assertEqual(note.author, self.note.author)

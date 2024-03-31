@@ -17,7 +17,7 @@ def test_anonymous_user_cant_create_comment(
 
 
 def test_user_can_create_comment(
-    author_client, news, detail_url, form_data, author, count_comments_at_start
+    author_client, news, detail_url, form_data, author
 ):
     comments = set(Comment.objects.all())
     assertRedirects(
@@ -25,7 +25,7 @@ def test_user_can_create_comment(
         f'{detail_url}#comments'
     )
     new_comments = set(Comment.objects.all())
-    assert len(new_comments) - count_comments_at_start == 1
+    assert len(new_comments - comments) == 1
     new_comment = (new_comments - comments).pop()
     assert new_comment.text == form_data['text']
     assert new_comment.news == news
